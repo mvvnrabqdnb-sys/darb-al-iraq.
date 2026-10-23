@@ -27,7 +27,7 @@ jobs:
         run: |
           GRADLE_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v gradle)")")")"
           bash work/darb-al-iraq/tools/run_core_checks.sh "$GRADLE_HOME"
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v2
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - name: Build debug APK
