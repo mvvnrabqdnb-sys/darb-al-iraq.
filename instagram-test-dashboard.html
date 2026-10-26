@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instagram Messaging Test Dashboard</title>
+<style>
+:root{--bg:#eef3f4;--card:#fff;--ink:#14272b;--mute:#5d7378;--line:#d6e1e3;--acc:#0b8a7f;--acc2:#0b6f9c;--ok:#16895a;--bad:#c9303f;--warn:#b57a08;--info:#2f64c4;--code:#f3f7f8}
+:root[data-theme=dark]{--bg:#0d1719;--card:#142226;--ink:#e6f2f3;--mute:#8aa5aa;--line:#233a3f;--acc:#2fd0bf;--acc2:#4fb4e6;--ok:#3ccf91;--bad:#ff7080;--warn:#e8b04a;--info:#7ea2f5;--code:#0f1c1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Segoe UI",Tahoma,system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;font-size:17px;display:flex;gap:10px;align-items:center}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff}
+.demo{background:var(--warn);color:#1f1400;padding:7px 18px;font-weight:600;font-size:13.5px}
+.note{margin:14px 18px 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-inline-start:4px solid var(--info);border-radius:10px;font-size:14px}
+.app{display:grid;grid-template-columns:230px 1fr;gap:16px;padding:16px 18px 40px;max-width:1300px;margin:0 auto}
+.side{display:flex;flex-direction:column;gap:4px;position:sticky;top:12px;align-self:start}
+.side button{text-align:start;border:0;background:transparent;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--ink);font:inherit}
+.side button:hover{background:var(--card)}
+.side button.on{background:var(--card);box-shadow:inset 3px 0 0 var(--acc);font-weight:700}
+[dir=rtl] .side button.on{box-shadow:inset -3px 0 0 var(--acc)}
+.main{display:grid;gap:14px;min-width:0;align-content:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+h2{margin:0 0 10px;font-size:17px}h3{margin:14px 0 6px;font-size:15px}
+.btn,select,input[type=number],textarea{font:inherit;color:inherit;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 12px}
+.btn{cursor:pointer;background:var(--card)}.btn:hover{border-color:var(--acc)}
+.btn.pri{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;font-weight:600}
+.btn.bad{color:var(--bad)}.btn:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+textarea{width:100%;min-height:170px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.hint{color:var(--mute);font-size:13px}
+.err{color:var(--bad);font-size:13.5px;margin-top:6px}
+.badge{display:inline-block;padding:1px 10px;border-radius:99px;border:1px solid currentColor;font-size:12.5px;font-weight:600;white-space:nowrap}
+.ok,.s-accepted,.s-completed{color:var(--ok)}.no,.s-failed{color:var(--bad)}.unk,.s-cancelled,.s-partial,.s-paused{color:var(--warn)}.s-queued{color:var(--mute)}.s-processing,.s-running{color:var(--info)}
+.sim{color:var(--warn);border:1px dashed var(--warn);border-radius:6px;padding:0 6px;font-size:11.5px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 10px;text-align:start;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-size:13px}.tw{overflow-x:auto}
+pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:10px;overflow-x:auto;direction:ltr;text-align:left;font-size:12.5px;margin:6px 0}
+.rec{display:flex;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
+.rec label{flex:1}.rec.dis{opacity:.55}
+ol{margin:6px 0;padding-inline-start:22px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:10px 12px}.stat b{display:block;font-size:22px}.stat span{color:var(--mute);font-size:12.5px}
+.chart{width:100%;height:130px;background:var(--code);border-radius:10px;border:1px solid var(--line)}
+details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer}
+#toast{position:fixed;bottom:18px;inset-inline:0;margin:auto;width:max-content;max-width:90%;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+@media(max-width:820px){.app{grid-template-columns:1fr}.side{flex-direction:row;overflow-x:auto;position:static}.side button{white-space:nowrap}.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">⌁</div><span id="ttl"></span></div>
+  <div class="row" style="margin:0">
+    <button class="btn" data-act="lang" type="button"></button>
+    <button class="btn" data-act="theme" type="button">◐</button>
+  </div>
+</header>
+<div class="demo" id="demoBar"></div>
+<div class="note" id="noteBar"></div>
+<div class="app"><nav class="side" id="nav"></nav><main class="main" id="page"></main></div>
+<div id="toast" role="status"></div>
+
+<script>
+const S={
+ttl:["لوحة اختبار مراسلة إنستغرام","Instagram Messaging Test Dashboard"],
+demoBar:["وضع تجريبي (DEMO) — كل النتائج محاكاة محلية داخل المتصفح. لا اتصال بإنستغرام ولا رسائل حقيقية.","DEMO MODE — every result is a local simulation in your browser. No Instagram connection, no real messages."],
+noteBar:["هذا ملف HTML مستقل: لا يستطيع تنفيذ OAuth الحقيقي ولا حفظ الرموز بأمان ولا استقبال Webhook. الإرسال الحقيقي يحتاج خادماً يستخدم واجهة Meta الرسمية مع حساب احترافي.","This is a standalone HTML file: it cannot run real OAuth, store tokens safely or receive webhooks. Real sending needs a server using Meta's official API with a professional account."],
+nConnect:["ربط إنستغرام","Connect Instagram"],nStatus:["الأهلية والصلاحيات","Eligibility & permissions"],nComposer:["محرر الرسائل","Message editor"],nPreview:["المعاينة","Preview"],nCampaign:["حملة الاختبار","Test campaign"],nSim:["المحاكاة السريعة","Speed simulation"],nHistory:["السجل","History"],nSettings:["الإعدادات","Settings"],
+cTitle:["ربط حساب إنستغرام","Connect an Instagram account"],
+cPersonal:["الحسابات الشخصية غير مدعومة في واجهة المراسلة الرسمية؛ يلزم حساب احترافي (Business أو Creator). هذا التطبيق لا يطلب كلمة مرور إنستغرام أبداً ولا يتجاوز هذا القيد.","Personal accounts are not supported by the official Messaging API; a professional (Business or Creator) account is required. This app never asks for an Instagram password and does not bypass this restriction."],
+cState:["الحالة:","Status:"],cNo:["غير متصل","Not connected"],cYes:["متصل بحساب تجريبي @demo_professional (محاكاة)","Connected to demo account @demo_professional (simulated)"],
+cDemo:["ربط حساب تجريبي (DEMO)","Connect demo account (DEMO)"],cDisc:["فصل الحساب","Disconnect"],cReal:["الربط الحقيقي عبر Meta OAuth (يحتاج خادماً)","Real connection via Meta OAuth (needs a server)"],
+cStepsT:["خطوات إعداد تطبيق Meta","Meta app setup steps"],
+steps:[["حوّل حسابك إلى Business أو Creator من إعدادات إنستغرام.","أنشئ تطبيقاً في developers.facebook.com وأضف منتج Instagram (API setup with Instagram login).","أضف حسابك كمختبِر وفعّل الصلاحيتين المطلوبتين.","اضبط رابط OAuth للتحويل ورابط Webhook (HTTPS) ورمز التحقق.","اشترك في الحقل messages ثم راسل حسابك من حساب آخر لإنشاء مستلم مؤهل.","للحسابات التي لا تملكها يلزم Advanced Access ومراجعة التطبيق."],["Convert your account to Business or Creator in Instagram settings.","Create an app at developers.facebook.com and add the Instagram product (API setup with Instagram login).","Add your account as a tester and enable the two required permissions.","Set the OAuth redirect URI and the HTTPS webhook URL with a verify token.","Subscribe to the messages field, then DM your account from another account to create an eligible recipient.","For accounts you do not own, Advanced Access and app review are required."]],
+sTitle:["حالة الأهلية والصلاحيات","Eligibility & permission status"],sType:["نوع الحساب (للعرض التجريبي)","Account type (demo switch)"],sPro:["احترافي","Professional"],sPers:["شخصي","Personal"],
+sConn:["الاتصال بالحساب","Account connection"],sP1:["صلاحية instagram_business_basic","Permission instagram_business_basic"],sP2:["صلاحية instagram_business_manage_messages","Permission instagram_business_manage_messages"],sHook:["اشتراك Webhook (messages)","Webhook subscription (messages)"],sAcc:["مستوى الوصول","Access level"],
+met:["مستوفى (تجريبي)","Met (demo)"],notmet:["غير مستوفى","Not met"],unk:["لا يمكن التحقق هنا","Cannot verify here"],accNote:["Standard للحسابات التي تملكها، Advanced (مراجعة) لغيرها","Standard for accounts you own; Advanced (review) for others"],
+sDoc:["الطلب الموثّق لدى Meta (لا يُنفَّذ هنا)","Request documented by Meta (not executed here)"],
+mTitle:["محرر الرسائل","Message editor"],mHint:["كل سطر = رسالة، بنفس الترتيب. الحد 1000 بايت UTF-8 لكل رسالة.","One line = one message, in order. Limit 1000 bytes UTF-8 each."],mCount:["رسالة","messages"],errEmpty:["اكتب رسالة واحدة على الأقل","Write at least one message"],errBytes:["إحدى الرسائل تتجاوز 1000 بايت","A message exceeds 1000 bytes"],
+rTitle:["المستلم (مؤهل فقط: هو من بدأ المحادثة خلال آخر 24 ساعة)","Recipient (eligible only: they messaged first within 24h)"],rOk:["مؤهل","Eligible"],rWin:["انتهت نافذة 24 ساعة","24h window closed"],rNone:["لم يراسل حسابك","Never messaged you"],
+pTitle:["المعاينة النهائية","Final preview"],pTo:["المستلم","Recipient"],pNone:["لم يُحدد مستلم","No recipient selected"],pConfirm:["أؤكد إرسال هذه الرسائل بالضبط إلى هذا المستلم","I confirm sending exactly these messages to this recipient"],pGo:["إلى حملة الاختبار","Go to test campaign"],
+kTitle:["حملة الاختبار","Test campaign"],kScen:["سيناريو استجابة API المحاكاة","Simulated API outcome"],o_ok:["نجاح","Success"],o_rate:["حد المعدل (4)","Rate limit (4)"],o_token:["انتهاء الرمز (190)","Expired token (190)"],o_perm:["رفض الصلاحية (10)","Permission denied (10)"],o_random:["عشوائي","Random"],
+kT:["إرسال رسالة الاختبار الأولى (محاكاة)","Send first test message (simulated)"],kR:["إرسال المتبقي (محاكاة)","Send remaining (simulated)"],kA:["بدء الإرسال (محاكاة)","Start (simulated)"],kPause:["إيقاف مؤقت","Pause"],kResume:["استئناف","Resume"],kCancel:["إلغاء","Cancel"],
+kStopped:["توقف الاختبار تلقائياً بسبب خطأ من API","Test stopped automatically after an API error"],kNote:["«مقبولة» تعني أن الطلب قُبل فقط وليست تأكيد تسليم أو قراءة.","'Accepted' only means the request was accepted, not delivered or read."],kNoRun:["لا توجد عملية تشغيل بعد","No run yet"],
+gConn:["اربط حساباً أولاً","Connect an account first"],gAcct:["نوع الحساب غير مدعوم (شخصي)","Unsupported account type (personal)"],gRec:["اختر مستلماً","Select a recipient"],gElig:["المستلم غير مؤهل","Recipient is not eligible"],gConfirm:["أكّد الإرسال في صفحة المعاينة","Confirm on the Preview page"],nothing:["لا توجد رسائل للإرسال","Nothing to send"],
+queued:["في الطابور","Queued"],processing:["قيد المعالجة","Processing"],accepted:["قبلها API (محاكاة)","Accepted by API (sim.)"],failed:["فشلت","Failed"],cancelled:["أُلغيت","Cancelled"],
+running:["قيد التشغيل","Running"],paused:["متوقفة مؤقتاً","Paused"],completed:["مكتملة","Completed"],partial:["فشل جزئي","Partially failed"],
+simTitle:["محاكاة المعالجة السريعة (لا تتصل بإنستغرام أبداً)","High-speed processing simulation (never contacts Instagram)"],simWarn:["الأرقام تقيس كوداً محلياً فقط. معالجة 100 مهمة في الثانية لا تعني أن إنستغرام سلّم 100 رسالة حقيقية.","These numbers measure local code only. Processing 100 jobs/second does not mean Instagram delivered 100 real messages."],
+simN:["عدد المهام (1–1000)","Jobs (1–1000)"],simW:["عمال في النمط المتزامن (1–50)","Workers in concurrent mode (1–50)"],simBoth:["تشغيل المقارنة","Run comparison"],simSeq:["تسلسلي","Sequential"],simCon:["متزامن","Concurrent"],
+simDone:["تمت معالجتها","Processed"],simJps:["مهمة/ثانية","jobs/s"],simQ:["طول الطابور","Queue length"],simDur:["المدة (ث)","Duration (s)"],simOk:["نجاح (محاكاة)","Successes (sim.)"],simBad:["فشل (محاكاة)","Failures (sim.)"],simChart:["الإنتاجية لكل 50 مللي ثانية","Throughput per 50 ms"],
+hTitle:["سجل الحملات","Campaign history"],hEmpty:["لا توجد حملات بعد","No campaigns yet"],hClear:["مسح السجل","Clear history"],hId:["المعرّف","ID"],hTime:["الوقت","Time"],hRec:["المستلم","Recipient"],hRes:["النتيجة","Result"],hAcc:["مقبولة","accepted"],hFail:["فاشلة","failed"],hErr:["الخطأ","Error"],hResp:["استجابة API (محاكاة)","API response (simulated)"],
+setTitle:["إعدادات حدود الاختبار الآمن","Safe testing limits"],setDelay:["التأخير بين الرسائل بالمللي ثانية (الأدنى 500)","Delay between messages in ms (min 500)"],setMax:["أقصى عدد رسائل في التشغيل الواحد (1–20)","Max messages per run (1–20)"],setStop:["إيقاف تلقائي عند خطأ API (حد معدل/صلاحية/رمز)","Auto-stop on API error (rate limit/permission/token)"],setSingle:["رسالة اختبار واحدة أولاً","Single test message first"],setNote:["هذه حدود أمان للاختبار وليست وسيلة لتجاوز قيود المنصة.","These are safety limits for testing, not a way around platform limits."],setReset:["إعادة ضبط كل شيء","Reset everything"],reset:["تمت إعادة الضبط","Everything was reset"]
+};
+const H=36e5;
+const RECS=[{id:1,name:"Demo User A (DEMO)",ago:2*H},{id:2,name:"Demo User B (DEMO)",ago:20*H},{id:3,name:"Demo User C (DEMO)",ago:30*H},{id:4,name:"Demo User D (DEMO)",ago:null}];
+const ERR={rate:{error:{message:"(simulated) Application request limit reached",code:4,simulated:true}},token:{error:{message:"(simulated) Access token has expired",code:190,simulated:true}},perm:{error:{message:"(simulated) Permission denied",code:10,simulated:true}}};
+const DEF=()=>({connected:false,acct:"pro",text:"Hello\nHow are you?\nThis is my college project.\nThank you.",rid:null,confirm:false,scen:"ok",testDone:false,run:null,paused:false,cancel:false,hist:[],set:{delay:1000,max:5,stopErr:true,single:true},sim:{n:100,w:10,seq:null,con:null}});
+let L="ar",P="connect",st=DEF();
+try{L=localStorage.getItem("itd-lang")||"ar"}catch(e){}
+const t=k=>S[k][L==="ar"?0:1];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,Math.round(+v)||a));
+const lines=()=>st.text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+const lineErr=()=>{const l=lines();if(!l.length)return "errEmpty";return l.some(x=>new TextEncoder().encode(x).length>1000)?"errBytes":null};
+const elig=r=>r.ago===null?"NONE":r.ago>24*H?"WIN":"OK";
+const rec=()=>RECS.find(r=>r.id===st.rid);
+const badge=(c,txt)=>`<span class="badge ${c}">${txt}</span>`;
+const SIM=`<span class="sim">${"SIM"}</span>`;
+function gate(){
+  if(!st.connected)return "gConn";if(st.acct!=="pro")return "gAcct";
+  if(!rec())return "gRec";if(elig(rec())!=="OK")return "gElig";
+  const e=lineErr();if(e)return e;if(!st.confirm)return "gConfirm";return null;
+}
+function toast(m){const e=$("toast");e.textContent=m;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),3000)}
+const fmt=d=>d?new Date(d).toLocaleTimeString():"-";
+
+const pages={
+connect(){return `<div class="card"><h2>${t("cTitle")}</h2><p>${t("cPersonal")}</p>
+<p>${t("cState")} ${st.connected?badge("ok",t("cYes")):badge("no",t("cNo"))}</p>
+<div class="row"><button class="btn pri" data-act="conn" type="button">${st.connected?t("cDisc"):t("cDemo")}</button>
+<button class="btn" disabled type="button">${t("cReal")}</button></div></div>
+<div class="card"><h2>${t("cStepsT")}</h2><ol>${S.steps[L==="ar"?0:1].map(x=>`<li>${x}</li>`).join("")}</ol></div>`},
+status(){
+const c=st.connected,pro=st.acct==="pro";
+const row=(n,v)=>`<tr><td>${n}</td><td>${v}</td></tr>`;
+const ok=(b)=>b?badge("ok",t("met")):badge("no",t("notmet"));
+return `<div class="card"><h2>${t("sTitle")}</h2>
+<label>${t("sType")} <select data-bind="acct"><option value="pro" ${pro?"selected":""}>${t("sPro")}</option><option value="pers" ${pro?"":"selected"}>${t("sPers")}</option></select></label>
+${pro?"":`<div class="err">${t("gAcct")}</div>`}
+<div class="tw"><table><tbody>
+${row(t("sType"),ok(pro))}${row(t("sConn"),ok(c))}${row(t("sP1"),ok(c&&pro))}${row(t("sP2"),ok(c&&pro))}
+${row(t("sHook"),badge("unk",t("unk")))}${row(t("sAcc"),badge("unk",t("accNote")))}
+</tbody></table></div></div>
+<div class="card"><h2>${t("sDoc")}</h2><pre>POST https://graph.instagram.com/v25.0/&lt;IG_ID&gt;/messages
+Authorization: Bearer &lt;INSTAGRAM_USER_ACCESS_TOKEN&gt;
+Content-Type: application/json
+
+{"recipient":{"id":"&lt;IGSID&gt;"},"message":{"text":"&lt;TEXT&gt;"}}
+
+→ {"recipient_id":"IGSID","message_id":"MESSAGE-ID"}</pre>
+<div class="hint">instagram_business_basic · instagram_business_manage_messages</div></div>`},
+composer(){const e=lineErr();return `<div class="card"><h2>${t("mTitle")}</h2>
+<textarea data-bind="text" aria-label="${t("mTitle")}">${esc(st.text)}</textarea>
+<div class="hint">${t("mHint")} <b id="cnt">${lines().length}</b> ${t("mCount")}</div><div class="err" id="lerr">${e?t(e):""}</div></div>
+<div class="card"><h2>${t("rTitle")}</h2>${RECS.map(r=>{const e=elig(r),h=r.ago===null?"":Math.round(r.ago/H);
+const lab=e==="OK"?badge("ok",t("rOk")):e==="WIN"?badge("unk",t("rWin")):badge("no",t("rNone"));
+return `<div class="rec ${e==="OK"?"":"dis"}"><input type="radio" name="rid" id="r${r.id}" value="${r.id}" data-bind="rid" ${st.rid===r.id?"checked":""} ${e==="OK"?"":"disabled"}><label for="r${r.id}">${esc(r.name)}${h!==""?` <span class="hint">(${L==="ar"?"قبل "+h+" ساعة":h+"h ago"})</span>`:""}</label>${lab}</div>`}).join("")}</div>`},
+preview(){const r=rec(),l=lines(),g=gate();
+return `<div class="card"><h2>${t("pTitle")}</h2><p>${t("pTo")}: <b>${r?esc(r.name):t("pNone")}</b></p>
+<ol>${l.map(x=>`<li>${esc(x)}</li>`).join("")}</ol><div class="hint">${l.length} ${t("mCount")}</div>
+<label class="row"><input type="checkbox" data-bind="confirm" ${st.confirm?"checked":""}> ${t("pConfirm")}</label>
+${g&&g!=="gConfirm"?`<div class="err">${t(g)}</div>`:""}
+<div class="row"><button class="btn pri" data-act="go-campaign" type="button">${t("pGo")}</button></div></div>`},
+campaign(){const run=st.run,live=run&&(run.status==="running"||run.status==="paused");
+const lab=st.set.single&&!st.testDone?t("kT"):st.set.single?t("kR"):t("kA");
+return `<div class="card"><h2>${t("kTitle")} ${SIM}</h2>
+<label>${t("kScen")} <select data-bind="scen">${["ok","rate","token","perm","random"].map(o=>`<option value="${o}" ${st.scen===o?"selected":""}>${t("o_"+o)}</option>`).join("")}</select></label>
+<div class="row"><button class="btn pri" data-act="start" type="button" ${live?"disabled":""}>${lab}</button>
+<button class="btn" data-act="pause" type="button" ${live?"":"disabled"}>${run&&run.status==="paused"?t("kResume"):t("kPause")}</button>
+<button class="btn bad" data-act="cancel" type="button" ${live?"":"disabled"}>${t("kCancel")}</button></div>
+<div class="hint" style="margin-top:8px">${t("kNote")}</div></div>
+${run?`<div class="card"><h2>${run.id} ${badge("s-"+run.status,t(run.status))}</h2>${run.stopped?`<div class="err">${t("kStopped")}</div>`:""}${items(run)}</div>`:`<div class="card hint">${t("kNoRun")}</div>`}`},
+sim(){const s=st.sim,mx=Math.max(1,...["seq","con"].map(k=>s[k]?s[k].buckets.length:0));
+const peak=Math.max(1,...["seq","con"].flatMap(k=>s[k]?Array.from(s[k].buckets,v=>v||0):[0]));
+const blk=(k,name,col)=>{const o=s[k];if(!o)return `<div class="card hint">${name}</div>`;
+return `<div class="card"><h3>${name} ${SIM}</h3><div class="grid">
+<div class="stat"><b>${o.ok+o.bad}/${o.total}</b><span>${t("simDone")}</span></div>
+<div class="stat"><b>${o.running?"…":o.jps.toFixed(1)}</b><span>${t("simJps")}</span></div>
+<div class="stat"><b>${o.queue}</b><span>${t("simQ")}</span></div>
+<div class="stat"><b>${(o.dur/1000).toFixed(2)}</b><span>${t("simDur")}</span></div>
+<div class="stat"><b style="color:var(--ok)">${o.ok}</b><span>${t("simOk")}</span></div>
+<div class="stat"><b style="color:var(--bad)">${o.bad}</b><span>${t("simBad")}</span></div></div>
+<h3>${t("simChart")}</h3>${chart(o,mx,peak,col)}</div>`};
+return `<div class="card"><h2>${t("simTitle")}</h2><div class="note" style="margin:0 0 10px;border-inline-start-color:var(--warn)">${t("simWarn")}</div>
+<div class="row"><label>${t("simN")} <input type="number" data-bind="simn" value="${s.n}" min="1" max="1000" style="width:90px"></label>
+<label>${t("simW")} <input type="number" data-bind="simw" value="${s.w}" min="1" max="50" style="width:80px"></label></div>
+<div class="row"><button class="btn pri" data-act="sim-both" type="button">${t("simBoth")}</button>
+<button class="btn" data-act="sim-seq" type="button">${t("simSeq")}</button><button class="btn" data-act="sim-con" type="button">${t("simCon")}</button></div></div>
+${blk("seq",t("simSeq"),"var(--info)")}${blk("con",t("simCon"),"var(--acc)")}`},
+history(){return `<div class="card"><h2>${t("hTitle")}</h2>
+${st.hist.length?`<div class="row" style="margin:0 0 8px"><button class="btn bad" data-act="hclear" type="button">${t("hClear")}</button></div>`:`<div class="hint">${t("hEmpty")}</div>`}
+${st.hist.map(r=>{const a=r.items.filter(i=>i.st==="accepted").length,f=r.items.filter(i=>i.st==="failed").length;
+return `<details><summary><b>${r.id}</b> · ${new Date(r.ts).toLocaleString()} · ${esc(r.rec)} · ${badge("s-"+r.status,t(r.status))} · ${a} ${t("hAcc")} / ${f} ${t("hFail")} ${SIM}</summary>${items(r,true)}</details>`}).join("")}</div>`},
+settings(){const s=st.set;return `<div class="card"><h2>${t("setTitle")}</h2>
+<div class="row"><label>${t("setDelay")} <input type="number" data-bind="delay" value="${s.delay}" min="500" style="width:110px"></label></div>
+<div class="row"><label>${t("setMax")} <input type="number" data-bind="max" value="${s.max}" min="1" max="20" style="width:80px"></label></div>
+<label class="row"><input type="checkbox" data-bind="stopErr" ${s.stopErr?"checked":""}> ${t("setStop")}</label>
+<label class="row"><input type="checkbox" data-bind="single" ${s.single?"checked":""}> ${t("setSingle")}</label>
+<div class="hint" style="margin-top:8px">${t("setNote")}</div>
+<div class="row"><button class="btn bad" data-act="reset" type="button">${t("setReset")}</button></div></div>`}
+};
+function items(r,detail){return `<div class="tw"><table><thead><tr><th>#</th><th></th><th>${t("hTime")}</th><th></th></tr></thead><tbody>${r.items.map(i=>`<tr><td>${i.pos}</td><td>${esc(i.text)}</td><td>${fmt(i.end||i.start)}</td><td>${badge("s-"+i.st,t(i.st))}${i.resp?` ${SIM}`:""}</td></tr>${i.resp&&detail?`<tr><td></td><td colspan="3"><div class="hint">${t("hResp")}</div><pre>${esc(JSON.stringify(i.resp,null,2))}</pre></td></tr>`:""}`).join("")}</tbody></table></div>`}
+function chart(o,mx,peak,col){const b=Array.from(o.buckets,v=>v||0),W=600,Hh=120,bw=W/mx;
+return `<svg viewBox="0 0 ${W} ${Hh+6}" class="chart" role="img" aria-label="${t("simChart")}">${b.map((v,i)=>`<rect x="${i*bw+1}" y="${Hh+3-(v/peak)*Hh}" width="${Math.max(bw-2,1)}" height="${(v/peak)*Hh}" fill="${col}" rx="2"/>`).join("")}</svg>`}
+
+let pend=false;
+function draw(){if(pend)return;pend=true;requestAnimationFrame(()=>{pend=false;if(["campaign","history","sim"].includes(P))render()})}
+function render(){
+  document.documentElement.lang=L;document.documentElement.dir=L==="ar"?"rtl":"ltr";
+  $("ttl").textContent=t("ttl");$("demoBar").textContent=t("demoBar");$("noteBar").textContent=t("noteBar");
+  document.querySelector('[data-act=lang]').textContent=L==="ar"?"English":"العربية";
+  const ks=[["connect","nConnect"],["status","nStatus"],["composer","nComposer"],["preview","nPreview"],["campaign","nCampaign"],["sim","nSim"],["history","nHistory"],["settings","nSettings"]];
+  $("nav").innerHTML=ks.map(([k,n])=>`<button type="button" data-nav="${k}" class="${P===k?"on":""}">${t(n)}</button>`).join("");
+  $("page").innerHTML=pages[P]();
+}
+function outcome(){const s=st.scen;if(s!=="random")return s;const r=Math.random();return r<.8?"ok":r<.9?"rate":r<.95?"token":"perm"}
+async function start(){
+  const g=gate();if(g){toast(t(g));return}
+  if(st.run&&(st.run.status==="running"||st.run.status==="paused"))return;
+  const ls=lines(),isTest=st.set.single&&!st.testDone;
+  let batch=isTest?ls.slice(0,1):(st.set.single?ls.slice(1):ls);batch=batch.slice(0,st.set.max);
+  if(!batch.length){toast(t("nothing"));return}
+  const r=rec(),run={id:"RUN-"+String(st.hist.length+1).padStart(3,"0"),ts:new Date(),rec:r.name,status:"running",items:batch.map((x,i)=>({pos:i+1,text:x,st:"queued"}))};
+  st.hist.unshift(run);st.run=run;st.paused=false;st.cancel=false;render();
+  for(const it of run.items){
+    while(st.paused&&!st.cancel)await sleep(150);
+    if(st.cancel){it.st="cancelled";continue}
+    it.st="processing";it.start=new Date();draw();
+    await sleep(Math.max(500,st.set.delay));
+    if(st.cancel){it.st="cancelled";draw();continue}
+    const o=outcome();it.end=new Date();
+    if(o==="ok"){it.st="accepted";it.resp={recipient_id:"SIM_IGSID_"+r.id,message_id:"SIM_MSG_"+Math.random().toString(36).slice(2,10),simulated:true};if(isTest)st.testDone=true}
+    else{it.st="failed";it.resp=ERR[o];if(st.set.stopErr){st.cancel=true;run.stopped=o}}
+    draw();
+  }
+  const a=run.items.filter(i=>i.st==="accepted").length,f=run.items.filter(i=>i.st==="failed").length,c=run.items.filter(i=>i.st==="cancelled").length;
+  run.status=run.stopped?(a?"partial":"failed"):c?"cancelled":f&&a?"partial":f?"failed":"completed";
+  run.done=new Date();st.paused=false;st.cancel=false;render();
+}
+async function runSim(mode){
+  const s=st.sim,n=clamp(s.n,1,1000),w=mode==="seq"?1:clamp(s.w,1,50);
+  const o={total:n,ok:0,bad:0,queue:n,dur:0,jps:0,buckets:[],running:true};s[mode]=o;
+  const t0=performance.now();let next=0;
+  const worker=async()=>{while(next<n){next++;o.queue=n-next;await sleep(25);if(Math.random()<.05)o.bad++;else o.ok++;
+    o.dur=performance.now()-t0;const b=Math.floor(o.dur/50);o.buckets[b]=(o.buckets[b]||0)+1;draw()}};
+  await Promise.all(Array.from({length:w},worker));
+  o.running=false;o.queue=0;o.dur=performance.now()-t0;o.jps=n/(o.dur/1000);render();
+}
+document.addEventListener("click",e=>{
+  const nv=e.target.closest("[data-nav]");if(nv){P=nv.dataset.nav;render();return}
+  const b=e.target.closest("[data-act]");if(!b)return;
+  switch(b.dataset.act){
+    case "lang":L=L==="ar"?"en":"ar";try{localStorage.setItem("itd-lang",L)}catch(x){}render();break;
+    case "theme":{const d=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=d;try{localStorage.setItem("itd-theme",d)}catch(x){}break}
+    case "conn":st.connected=!st.connected;render();break;
+    case "go-campaign":P="campaign";render();break;
+    case "start":start();break;
+    case "pause":if(st.run){st.paused=!st.paused;st.run.status=st.paused?"paused":"running";render()}break;
+    case "cancel":st.cancel=true;st.paused=false;break;
+    case "sim-seq":runSim("seq");break;
+    case "sim-con":runSim("con");break;
+    case "sim-both":runSim("seq").then(()=>runSim("con"));break;
+    case "hclear":st.hist=[];st.run=null;render();break;
+    case "reset":{const k=document.documentElement.dataset.theme;st.cancel=true;st=DEF();render();toast(t("reset"));break}
+  }
+});
+document.addEventListener("input",e=>{
+  if(e.target.dataset.bind==="text"){st.text=e.target.value;st.testDone=false;st.confirm=false;$("cnt").textContent=lines().length;const x=lineErr();$("lerr").textContent=x?t(x):""}
+});
+document.addEventListener("change",e=>{
+  const k=e.target.dataset.bind;if(!k||k==="text")return;
+  const v=e.target.type==="checkbox"?e.target.checked:e.target.value;
+  if(k==="acct")st.acct=v;else if(k==="rid"){st.rid=+v;st.confirm=false;st.testDone=false}
+  else if(k==="confirm")st.confirm=v;else if(k==="scen")st.scen=v;
+  else if(k==="delay")st.set.delay=clamp(v,500,60000);else if(k==="max")st.set.max=clamp(v,1,20);
+  else if(k==="stopErr")st.set.stopErr=v;else if(k==="single")st.set.single=v;
+  else if(k==="simn")st.sim.n=clamp(v,1,1000);else if(k==="simw")st.sim.w=clamp(v,1,50);
+  render();
+});
+try{document.documentElement.dataset.theme=localStorage.getItem("itd-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){document.documentElement.dataset.theme="light"}
+render();
+</script>
+</body>
+</html>
